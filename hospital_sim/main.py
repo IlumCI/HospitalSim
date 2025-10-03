@@ -214,9 +214,6 @@ class EHRSystem:
         if CHROMADB_AVAILABLE:
             self._initialize_chromadb()
         else:
-            print(
-                "Warning: Using in-memory storage instead of ChromaDB"
-            )
             self._initialize_memory_storage()
 
     def _initialize_chromadb(self):
@@ -245,20 +242,15 @@ class EHRSystem:
             logger.info(
                 f"EHR System initialized with ChromaDB collection: {self.collection_name}"
             )
-            print(
-                f"✅ EHR System initialized with ChromaDB collection: {self.collection_name}"
-            )
 
-        except Exception as e:
-            logger.error(f"Error initializing ChromaDB: {e}")
-            print(f"Error initializing ChromaDB: {e}")
+        except Exception as _:
+            logger.error("Error initializing ChromaDB")
             self._initialize_memory_storage()
 
     def _initialize_memory_storage(self):
         """Initialize in-memory storage as fallback."""
         self.memory_storage = {}
         logger.info("EHR System initialized with in-memory storage")
-        print("✅ EHR System initialized with in-memory storage")
 
     def add_patient_record(
         self, patient: Patient, medical_notes: str, doctor_name: str
@@ -306,8 +298,7 @@ class EHRSystem:
                     metadatas=[metadata],
                     ids=[record_id],
                 )
-            except Exception as e:
-                print(f"Error adding to ChromaDB: {e}")
+            except Exception as _:
                 self._add_to_memory(
                     record_id, record_content, metadata
                 )
@@ -343,8 +334,7 @@ class EHRSystem:
                     )
 
                 return self._format_chromadb_results(results)
-            except Exception as e:
-                print(f"Error querying ChromaDB: {e}")
+            except Exception as _:
                 return self._query_memory(patient_id, query)
         else:
             return self._query_memory(patient_id, query)
@@ -414,8 +404,7 @@ class EHRSystem:
                     query_texts=[query_text], n_results=5
                 )
                 return self._format_chromadb_results(results)
-            except Exception as e:
-                print(f"Error searching similar cases: {e}")
+            except Exception as _:
                 return self._search_memory_similar(
                     symptoms, diagnosis
                 )
@@ -735,9 +724,6 @@ class HospitalSimulation:
         logger.info(
             f"Hospital staff initialized: {len(self.staff)} staff members"
         )
-        print(
-            f"✅ Hospital staff initialized: {len(self.staff)} staff members"
-        )
 
     def add_patient(self, patient: Patient):
         """Add a new patient to the hospital."""
@@ -774,19 +760,9 @@ class HospitalSimulation:
             logger.debug(
                 f"Patient response: {patient_response[:100]}..."
             )
-            print(
-                f"✅ Patient {patient.name} checked in and added to queue"
-            )
-            print(
-                f"   Reception interaction: {check_in_result[:100]}..."
-            )
-            print(f"   Patient response: {patient_response[:100]}...")
         else:
             logger.warning(
                 f"Receptionist busy, patient {patient.name} waiting"
-            )
-            print(
-                f"⚠️ Receptionist busy, patient {patient.name} waiting"
             )
 
     def process_patient_queue(self):
@@ -888,11 +864,6 @@ class HospitalSimulation:
             logger.info(
                 f"Patient {patient.name} treated by {available_doctor.name} - Diagnosis: {diagnosis} - Time: {treatment_time:.1f} minutes"
             )
-            print(
-                f"✅ Patient {patient.name} treated by {available_doctor.name}"
-            )
-            print(f"   Diagnosis: {diagnosis}")
-            print(f"   Treatment Time: {treatment_time:.1f} minutes")
 
     def _extract_vital_signs(
         self, triage_result: str
@@ -991,7 +962,6 @@ class HospitalSimulation:
         # Run executive meeting
         meeting_result = executive_swarm.run(agenda)
 
-        print(f"🏥 Executive Meeting Results:\n{meeting_result}")
 
         # Update simulation based on executive decisions
         self._implement_executive_decisions(meeting_result)
@@ -1000,7 +970,6 @@ class HospitalSimulation:
         """Implement decisions from executive meeting."""
         # Parse actual executive decisions from meeting results
         # This would integrate with real hospital management systems
-        print("📋 Executive decisions recorded for implementation")
 
         # In a real system, this would:
         # 1. Parse structured decisions from the meeting
@@ -1086,9 +1055,6 @@ class HospitalSimulation:
         Returns:
             Dictionary containing treatment results and recommendations
         """
-        print(
-            f"🏥 Processing patient: {patient_record.get('name', 'Unknown')}"
-        )
 
         # Create patient object from record
         if symptoms:
@@ -1134,23 +1100,18 @@ class HospitalSimulation:
 
         try:
             # Step 1: Reception check-in
-            print(f"📋 {patient.name} checking in...")
             reception_result = self._reception_checkin(patient)
 
             # Step 2: Triage assessment
-            print(f"🔍 {patient.name} undergoing triage...")
             triage_result = self._triage_assessment(patient)
 
             # Step 3: Doctor consultation
-            print(f"👨‍⚕️ {patient.name} consulting with doctor...")
             consultation_result = self._doctor_consultation(patient)
 
             # Step 4: Treatment planning
-            print(f"💊 {patient.name} receiving treatment plan...")
             treatment_result = self._treatment_planning(patient)
 
             # Step 5: EHR documentation
-            print(f"📝 {patient.name} records being documented...")
             ehr_result = self._document_in_ehr(
                 patient,
                 triage_result,
@@ -1416,9 +1377,6 @@ class HospitalSimulation:
         logger.info(
             f"Starting {self.hospital_name} simulation for {duration_minutes} minutes (arrival rate: {patient_arrival_rate})"
         )
-        print(
-            f"🏥 Starting {self.hospital_name} simulation for {duration_minutes} minutes"
-        )
         self.is_running = True
         self.stop_event.clear()
 
@@ -1470,7 +1428,6 @@ class HospitalSimulation:
 
         except KeyboardInterrupt:
             logger.info("Simulation stopped by user")
-            print("\n⏹️ Simulation stopped by user")
         finally:
             self.is_running = False
             logger.info("Simulation ended")
@@ -1478,68 +1435,17 @@ class HospitalSimulation:
 
     def print_status(self):
         """Print current hospital status."""
-        print(f"\n🏥 {self.hospital_name} - Status Update")
-        print(f"Time: {datetime.now().strftime('%H:%M:%S')}")
-        print(
-            f"Patients in Queue: {self.patient_queue.get_queue_status()['total_waiting']}"
-        )
-        print(
-            f"Patients Treated: {self.simulation_stats['patients_treated']}"
-        )
-        print(
-            f"Average Wait Time: {self.simulation_stats['average_wait_time']:.1f} minutes"
-        )
-        print(f"Revenue: ${self.simulation_stats['revenue']:.2f}")
-        print(f"Costs: ${self.simulation_stats['costs']:.2f}")
-        print(
-            f"Net Profit: ${self.simulation_stats['revenue'] - self.simulation_stats['costs']:.2f}"
-        )
-        print(
-            f"Patient Satisfaction: {self.simulation_stats['patient_satisfaction']:.1f}%"
-        )
 
     def print_final_report(self):
         """Print final simulation report."""
-        print(f"\n🏥 {self.hospital_name} - Final Report")
-        print("=" * 50)
-        print(
-            f"Simulation Duration: {datetime.now() - self.simulation_time}"
-        )
-        print(
-            f"Total Patients: {self.simulation_stats['total_patients']}"
-        )
-        print(
-            f"Patients Treated: {self.simulation_stats['patients_treated']}"
-        )
-        print(
-            f"Average Wait Time: {self.simulation_stats['average_wait_time']:.1f} minutes"
-        )
-        print(
-            f"Total Revenue: ${self.simulation_stats['revenue']:.2f}"
-        )
-        print(f"Total Costs: ${self.simulation_stats['costs']:.2f}")
-        print(
-            f"Net Profit: ${self.simulation_stats['revenue'] - self.simulation_stats['costs']:.2f}"
-        )
-        print(
-            f"Patient Satisfaction: {self.simulation_stats['patient_satisfaction']:.1f}%"
-        )
 
         # Staff performance
-        print("\nStaff Performance:")
         for staff_name, staff in self.staff.items():
             if staff.performance_metrics["patients_treated"] > 0:
-                print(
-                    f"  {staff_name}: {staff.performance_metrics['patients_treated']} patients, "
-                    f"Avg time: {staff.performance_metrics['average_treatment_time']:.1f} min"
-                )
+                pass
 
         # EHR statistics
         if CHROMADB_AVAILABLE:
-            print(
-                f"\nEHR System: ChromaDB with collection '{self.ehr_system.collection_name}'"
-            )
+            pass
         else:
-            print(
-                f"\nEHR System: In-memory storage with {len(self.ehr_system.memory_storage)} records"
-            )
+            pass

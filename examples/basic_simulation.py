@@ -1,3 +1,4 @@
+from hospital_sim.main import HospitalSimulation
 from dotenv import load_dotenv
 
 load_dotenv()
